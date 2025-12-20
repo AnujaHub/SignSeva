@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8" />
+  <style>
+  html.dark {
+    --bg-0: #1A1B26;
+    --bg-1: #16171F;
+    --bg-2: #13141A;
+    --muted-text: #E1E2E6;
+    background: #1A1B26;
+    color: #E1E2E6;
+  }
+
+  html.light {
+    --bg-0: #F5F6F8;
+    --bg-1: #E8EAF0;
+    --bg-2: #DEE1E8;
+    --muted-text: #2D3444;
+    background: #F5F6F8;
+    color: #2D3444;
+  }
+
+  html:not(.light):not(.dark) {
+    background: #1A1B26; /* fallback to dark */
+    color: #E1E2E6;
+  }
+
+  body {
+    background: var(--bg-0);
+    color: var(--muted-text);
+  }
+</style>
+
+  <script>
+  (function () {
+    try {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'light') {
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {
+      document.documentElement.classList.add('dark');
+    }
+  })();
+</script>
+  <!-- <link rel="icon" href="/vite.svg" /> -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sign-seva</title>
+</head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

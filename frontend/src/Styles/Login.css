@@ -1,0 +1,108 @@
+/* Auth form container */
+.auth-form {
+  max-width: 400px;
+  width: 100%;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: 0 4px 10px var(--shadow-weak);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  transition: background-color 0.3s ease;
+}
+
+.auth-form h2 {
+  color: var(--muted-text);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.auth-form form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.auth-form label {
+  color: var(--muted-secondary);
+  font-size: 0.875rem;
+}
+
+.auth-form input {
+  padding: 0.8em 1em;
+  font-size: 1rem;
+  border: 1px solid var(--glass-outline);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--muted-text);
+}
+
+.auth-form input:focus {
+  border-color: var(--accent-1);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+  outline: none;
+}
+
+.auth-form button {
+  font-size: 1.1rem;
+  padding: 1rem;
+  background-color: var(--accent-1);
+  color: white;
+  border-radius: var(--radius-lg);
+  border: none;
+  box-shadow: 0 4px 6px var(--shadow-weak);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.auth-form button:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+.auth-form button:focus {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.auth-form p {
+  font-size: 0.875rem;
+  color: var(--muted-secondary);
+  text-align: center;
+}
+
+.auth-form a {
+  color: var(--accent-2);
+  text-decoration: none;
+}
+
+.auth-form a:hover {
+  color: var(--accent-1);
+  text-decoration: underline;
+}
+
+/* For mobile responsiveness */
+@media screen and (max-width: 768px) {
+  .auth-form {
+    max-width: 90%;
+    padding: 1.5rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .auth-form {
+    padding: 1rem;
+  }
+
+  .auth-form h2 {
+    font-size: 1.25rem;
+  }
+
+  .auth-form p {
+    font-size: 0.75rem;
+  }
+}
