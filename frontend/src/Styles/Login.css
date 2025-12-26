@@ -85,6 +85,12 @@
   text-decoration: underline;
 }
 
+.or-divider {
+    text-align: center;
+    margin: 16px 0;
+    color: #888;
+}
+
 /* For mobile responsiveness */
 @media screen and (max-width: 768px) {
   .auth-form {

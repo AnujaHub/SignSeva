@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { verifyToken, clearAuth, getToken } from './utils/firebase.js';
 import NavBar from './Components/Base/NavBar.jsx';
 
 import Landing from "./Pages/Base/Landing.jsx";
@@ -8,7 +9,7 @@ import Home from './Pages/Base/Home.jsx';
 import Dashboard from './Pages/Other/Dashboard.jsx';
 import Profile from './Pages/Other/Profile.jsx';
 import Quiz from './Pages/Other/Quiz.jsx';
-import Signup from './Pages/login/SignUp.jsx';
+import Signup from './Pages/login/Signup.jsx';
 import Login from './Pages/login/Login.jsx';
 import AIZone from './Pages/Other/AIZone.jsx';
 
@@ -20,8 +21,10 @@ import AlphabetFlashcards from './Pages/Other/AlphabetFlashcards.jsx';
 import NumberFlashcards from './Pages/Other/NumberFlashcards.jsx';
 
 function App() {
+    const navigate = useNavigate();
     const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
-    const [isLoggedIn, setIsLoggedIn] = useState(true); 
+    const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('isLoggedIn') === 'true');
+    const [isVerifying, setIsVerifying] = useState(true);
     
     const toggleTheme = () => {
         const newTheme = theme === "dark" ? "light" : "dark";
@@ -33,10 +36,38 @@ function App() {
       document.documentElement.className = theme;
     }, [theme]);
 
-    // useEffect(() => {
-    //   const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    //   setIsLoggedIn(loggedIn);
-    // }, []);
+    // Verify token on app mount
+    useEffect(() => {
+      const verifyUserToken = async () => {
+        setIsVerifying(true);
+        
+        const token = getToken();
+        if (!token) {
+          // No token, user is not logged in
+          clearAuth();
+          setIsLoggedIn(false);
+          setIsVerifying(false);
+          return;
+        }
+
+        // Verify token with backend
+        const result = await verifyToken();
+        
+        if (result.valid) {
+          setIsLoggedIn(true);
+          localStorage.setItem('isLoggedIn', 'true');
+         }
+        else {
+          // Token is invalid or expired
+          setIsLoggedIn(false);
+          clearAuth();
+        }
+        
+        setIsVerifying(false);
+      };
+
+      verifyUserToken();
+    }, []);
 
     const handleLogin = () => {
         setIsLoggedIn(true);
@@ -45,8 +76,20 @@ function App() {
 
     const handleLogout = () => {
         setIsLoggedIn(false);
-        localStorage.removeItem('isLoggedIn');
+        clearAuth();
+        navigate('/', { replace: true });
     };
+
+    // Show loading state while verifying token
+    if (isVerifying) {
+      return (
+        <div className='container'>
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <p>Loading…</p>
+          </div>
+        </div>
+      );
+    }
 
     return (
         <div className='container'>
@@ -62,8 +105,8 @@ function App() {
                 <Route path="/Profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
                 <Route path="/Quiz" element={isLoggedIn ? <Quiz /> : <Navigate to="/login" />} />
                 <Route path="/AIZone" element={isLoggedIn ? <AIZone/> : <Navigate to="/login" />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/login" element={<Login onLogin={handleLogin} />} />
+                <Route path="/signup" element={isLoggedIn ? <Navigate to="/Home" /> : <Signup onLogin={handleLogin} />} />
+                <Route path="/login" element={isLoggedIn ? <Navigate to="/Home" /> : <Login onLogin={handleLogin} />} />
             </Routes>
             <Footer />
         </div>
@@ -71,3 +114,4 @@ function App() {
 }
 
 export default App;
+
