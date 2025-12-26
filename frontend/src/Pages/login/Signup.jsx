@@ -24,8 +24,20 @@ function SignUp({ onLogin }) {
 
       navigate("/Home");
     } catch (err) {
-      console.error("Sign-up error:", err);
-      setError("Google sign-up failed. Please try again.");
+      console.error("❌ Google sign-up error:", err.code, err.message);
+      
+      // Show user-friendly error messages
+      if (err.code === "auth/popup-blocked") {
+        setError("Pop-up blocked. Please enable pop-ups and try again.");
+      } else if (err.code === "auth/popup-closed-by-user") {
+        setError("Sign-up was cancelled.");
+      } else if (err.code === "auth/unauthorized-domain") {
+        setError("This domain is not authorized. Check Firebase Console settings.");
+      } else if (err.code === "auth/invalid-api-key") {
+        setError("Firebase configuration error. Check your API key.");
+      } else {
+        setError(`Sign-up failed: ${err.message}`);
+      }
     } finally {
       setLoading(false);
     }

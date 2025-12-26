@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword  } from "firebase/auth";
-import { auth } from "../../utils/firebase";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../../utils/firebase";
 import "../../Styles/Login.css";
 
 function Login({ onLogin }) {
@@ -9,12 +9,12 @@ function Login({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = async () => {
+  const handleGoogleLogin = async () => {
     setError("");
     setLoading(true);
 
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
+      const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
       // Store user info (optional)
@@ -24,8 +24,20 @@ function Login({ onLogin }) {
 
       navigate("/Home");
     } catch (err) {
-      console.error(err);
-      setError("Google login failed. Please try again.");
+      console.error("❌ Google login error:", err.code, err.message);
+      
+      // Show user-friendly error messages
+      if (err.code === "auth/popup-blocked") {
+        setError("Pop-up blocked. Please enable pop-ups and try again.");
+      } else if (err.code === "auth/popup-closed-by-user") {
+        setError("Sign-in was cancelled.");
+      } else if (err.code === "auth/unauthorized-domain") {
+        setError("This domain is not authorized. Check Firebase settings.");
+      } else if (err.code === "auth/invalid-api-key") {
+        setError("Firebase configuration error. Check your API key.");
+      } else {
+        setError(`Login failed: ${err.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -52,6 +64,13 @@ function Login({ onLogin }) {
 
         <p className="helper-text">
           Secure login using your Google account
+        </p>
+
+        <p style={{ marginTop: "1.5rem", fontSize: "0.9rem", textAlign: "center" }}>
+          Don't have an account?{" "}
+          <a href="/signup" style={{ color: "var(--primary, #007bff)" }}>
+            Sign up here
+          </a>
         </p>
       </div>
     </div>

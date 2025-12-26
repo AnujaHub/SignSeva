@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { verifyToken, clearAuth, getToken } from './utils/firebase.js';
+import { auth, clearAuth } from './utils/firebase.js';
+import { onAuthStateChanged } from 'firebase/auth';
 import NavBar from './Components/Base/NavBar.jsx';
 
 import Landing from "./Pages/Base/Landing.jsx";
@@ -36,37 +37,26 @@ function App() {
       document.documentElement.className = theme;
     }, [theme]);
 
-    // Verify token on app mount
+    // Listen to Firebase auth state changes
     useEffect(() => {
-      const verifyUserToken = async () => {
-        setIsVerifying(true);
-        
-        const token = getToken();
-        if (!token) {
-          // No token, user is not logged in
-          clearAuth();
-          setIsLoggedIn(false);
-          setIsVerifying(false);
-          return;
-        }
-
-        // Verify token with backend
-        const result = await verifyToken();
-        
-        if (result.valid) {
+      setIsVerifying(true);
+      
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // User is logged in
           setIsLoggedIn(true);
           localStorage.setItem('isLoggedIn', 'true');
-         }
-        else {
-          // Token is invalid or expired
+          localStorage.setItem('user', JSON.stringify(user));
+        } else {
+          // User is logged out
           setIsLoggedIn(false);
           clearAuth();
         }
-        
         setIsVerifying(false);
-      };
+      });
 
-      verifyUserToken();
+      // Cleanup subscription on unmount
+      return () => unsubscribe();
     }, []);
 
     const handleLogin = () => {
@@ -96,17 +86,21 @@ function App() {
             <NavBar theme={theme} toggleTheme={toggleTheme} isLoggedIn={isLoggedIn} onLogout={handleLogout} />
             <Routes>
                 <Route path="/" element={isLoggedIn ? <Navigate to="/Home" /> : <Landing />} />
-                <Route path="/Home" element={<Home />} />
-                <Route path="*" element={<NotFound />} />
-                <Route path="/Dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
-                <Route path="/Learn" element={isLoggedIn ? <Learn/> : <Navigate to="/login" />} />
-                <Route path="/alphabet-flashcards" element={isLoggedIn ? <AlphabetFlashcards /> : <Navigate to="/login" />} />
-                <Route path="/number-flashcards" element={isLoggedIn ? <NumberFlashcards /> : <Navigate to="/login" />} />
-                <Route path="/Profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
-                <Route path="/Quiz" element={isLoggedIn ? <Quiz /> : <Navigate to="/login" />} />
-                <Route path="/AIZone" element={isLoggedIn ? <AIZone/> : <Navigate to="/login" />} />
-                <Route path="/signup" element={isLoggedIn ? <Navigate to="/Home" /> : <Signup onLogin={handleLogin} />} />
                 <Route path="/login" element={isLoggedIn ? <Navigate to="/Home" /> : <Login onLogin={handleLogin} />} />
+                <Route path="/signup" element={isLoggedIn ? <Navigate to="/Home" /> : <Signup onLogin={handleLogin} />} />
+                
+                {/* Protected Routes - Redirect to login if not authenticated */}
+                <Route path="/Home" element={isLoggedIn ? <Home /> : <Navigate to="/login" replace />} />
+                <Route path="/Dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" replace />} />
+                <Route path="/Learn" element={isLoggedIn ? <Learn/> : <Navigate to="/login" replace />} />
+                <Route path="/alphabet-flashcards" element={isLoggedIn ? <AlphabetFlashcards /> : <Navigate to="/login" replace />} />
+                <Route path="/number-flashcards" element={isLoggedIn ? <NumberFlashcards /> : <Navigate to="/login" replace />} />
+                <Route path="/Profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" replace />} />
+                <Route path="/Quiz" element={isLoggedIn ? <Quiz /> : <Navigate to="/login" replace />} />
+                <Route path="/AIZone" element={isLoggedIn ? <AIZone/> : <Navigate to="/login" replace />} />
+                
+                {/* 404 - Must be last */}
+                <Route path="*" element={<NotFound />} />
             </Routes>
             <Footer />
         </div>
