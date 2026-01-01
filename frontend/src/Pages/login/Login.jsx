@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithPopup } from "firebase/auth";
-import { auth, provider } from "../../utils/firebase";
+import { auth, provider , db} from "../../utils/firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import "../../Styles/Login.css";
 
 function Login({ onLogin }) {
@@ -17,16 +18,26 @@ function Login({ onLogin }) {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Store user info (optional)
-      localStorage.setItem("user", JSON.stringify(user));
+      // ===== Firestore: store user data =====
+      const userRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(userRef);
 
+      // Only create new document if user doesn't exist
+    if (!docSnap.exists()) {
+      await setDoc(userRef, {
+        name: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        createdAt: new Date()
+      });
+    }
       if (onLogin) onLogin();
-
       navigate("/Home");
+
     } catch (err) {
-      console.error("❌ Google login error:", err.code, err.message);
+      console.error("Google login error:", err.code, err.message);
       
-      // Show user-friendly error messages
+      
       if (err.code === "auth/popup-blocked") {
         setError("Pop-up blocked. Please enable pop-ups and try again.");
       } else if (err.code === "auth/popup-closed-by-user") {
@@ -58,7 +69,7 @@ function Login({ onLogin }) {
 
         {error && (
           <div className="error-msg">
-            ⚠️ {error}
+              { error}
           </div>
         )}
 

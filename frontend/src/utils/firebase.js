@@ -1,5 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+// import { enableIndexedDbPersistence } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,31 +14,22 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();
+export const db = getFirestore(app);
 
-// 🔹 Save token
-export const saveToken = (token) => {
-  localStorage.setItem("token", token);
-};
-
-// 🔹 Get token
-export const getToken = () => {
-  return localStorage.getItem("token");
-};
-
-// 🔹 Clear auth
 export const clearAuth = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("isLoggedIn");
 };
 
-// 🔹 Verify token (simple client-side check)
-export const verifyToken = async () => {
-  const token = getToken();
-  if (!token) return { valid: false };
 
-  // Firebase handles auth internally; this is enough for frontend
-  return { valid: true };
-};
+// Enable offline data persistence
+
+// enableIndexedDbPersistence(db).catch((err) => {
+//   if (err.code === "failed-precondition") {
+//     console.warn("Multiple tabs open — persistence disabled.");
+//   } else if (err.code === "unimplemented") {
+//     console.warn("Browser does not support persistence.");
+//   }
+// });
