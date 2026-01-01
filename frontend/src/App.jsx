@@ -32,7 +32,7 @@ function App() {
     document.documentElement.className = theme;
   }, [theme]);
 
-  // Firebase auth listener
+  // Firebase authorization listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {

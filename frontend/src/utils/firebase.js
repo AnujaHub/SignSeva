@@ -22,14 +22,3 @@ export const clearAuth = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("isLoggedIn");
 };
-
-
-// Enable offline data persistence
-
-// enableIndexedDbPersistence(db).catch((err) => {
-//   if (err.code === "failed-precondition") {
-//     console.warn("Multiple tabs open — persistence disabled.");
-//   } else if (err.code === "unimplemented") {
-//     console.warn("Browser does not support persistence.");
-//   }
-// });
