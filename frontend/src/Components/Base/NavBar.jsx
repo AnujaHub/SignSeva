@@ -42,8 +42,7 @@ function NavBar({isLoggedIn, onLogout, theme, toggleTheme}) {
             )}
             {!isLoggedIn && (
               <>
-                <NavLink to="/login" className={activeLink}>Login</NavLink>
-                <NavLink to="/signup" className={activeLink}>SignUp</NavLink>
+                <NavLink to="/auth" className={activeLink}>Sign in</NavLink>
               </>
             )}
             {isLoggedIn && (

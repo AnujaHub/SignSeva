@@ -13,7 +13,7 @@ function Landing() {
           <h1>Welcome to Sign Seva <HiHandRaised className="inline-icon" /></h1>
           <p>Learn Indian Sign Language interactively with AI-powered gesture recognition.</p>
           <div className="hero-buttons">
-            <Link to="/signup"><button>Get Started</button></Link>
+            <Link to="/auth"><button>Get Started</button></Link>
           </div>
         </div>
         <div className="hero-image">
@@ -57,9 +57,9 @@ function Landing() {
         </div>
       </section>
 
-      <section className="cta">
+        <section className="cta">
         <h2>Join Us to Learn ISL with AI Now! </h2>
-        <Link to="/signup"><button>Start Learning</button></Link>
+        <Link to="/auth"><button>Start Learning</button></Link>
       </section>
     </main>
     </div>
