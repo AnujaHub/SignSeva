@@ -28,6 +28,11 @@ function Login({ onLogin }) {
         name: user.displayName,
         email: user.email,
         photoURL: user.photoURL,
+        level: 1,
+        xp: 0,
+        streak: 0,
+        progress: {},
+        achievements: [],
         createdAt: new Date()
       });
     }
