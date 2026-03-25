@@ -1,5 +1,6 @@
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
+import { serverTimestamp } from "firebase/firestore";
 
 // Initializes a new user document if it doesn't already exist.
 // The user doc includes module-specific progress placeholders for flashcards and quizzes

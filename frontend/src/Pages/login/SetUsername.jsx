@@ -10,20 +10,34 @@ export default function SetUsername() {
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [checking, setChecking] = useState(true);
 
-  useEffect(() => {
-    // ensure user is authenticated
-    const unsub = authService.onAuthChanged(async (u) => {
-      if (!u) {
-        navigate('/login');
-        return;
-      }
-      // if username already set, redirect home
-      const doc = await userService.getUser(u.uid);
-      if (doc && doc.username) navigate('/home');
-    });
-    return () => unsub();
-  }, [navigate]);
+useEffect(() => {
+  const unsub = authService.onAuthChanged(async (u) => {
+    if (!u) {
+      navigate('/login');
+      return;
+    }
+
+    const doc = await userService.getUser(u.uid);
+
+    if (doc && doc.username) {
+      navigate('/home');
+    } else {
+      setChecking(false); // ✅ only show UI after check
+    }
+  });
+
+  return () => unsub();
+}, [navigate]);
+
+if (checking) {
+  return (
+    <div className="main-container">
+      <div className="auth-form">Loading...</div>
+    </div>
+  );
+}
 
   const validate = (v) => /^[a-z0-9_]{3,15}$/.test(v);
 

@@ -9,6 +9,7 @@ export const signInWithGoogle = async () => {
   const user = result.user;
   // Ensure users/{uid} exists with username:null
   await createUserIfNotExists(user);
+  console.log("User doc ensured");
   const userRef = doc(db, "users", user.uid);
   const snap = await getDoc(userRef);
   return { authUser: user, userDoc: snap.exists() ? snap.data() : null };
@@ -26,7 +27,7 @@ export const setUsername = async (uid, username) => {
     const unameSnap = await tx.get(usernameRef);
     if (unameSnap.exists()) throw new Error("Username already taken");
     tx.set(usernameRef, { uid });
-    tx.update(userRef, { username });
+    tx.set(userRef, { username }, { merge: true });
   });
 
   const updated = await getDoc(userRef);
