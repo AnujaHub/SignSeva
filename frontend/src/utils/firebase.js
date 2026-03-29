@@ -1,7 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider , signInWithPopup } from "firebase/auth";
 import { getFirestore , doc, setDoc, getDoc  } from "firebase/firestore";
-// import { enableIndexedDbPersistence } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -22,3 +23,5 @@ export const clearAuth = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("isLoggedIn");
 };
+
+export const storage = getStorage(app);

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { onSnapshot, doc } from 'firebase/firestore';
 import authService from './utils/authService';
 import userService from './utils/userService';
+import { db } from './utils/firebase';
 
 import NavBar from './Components/Base/NavBar';
 import Footer from './Components/Base/Footer';
@@ -36,24 +38,39 @@ function App() {
 
   // Firebase authorization listener + user doc loader
   useEffect(() => {
-    const unsubscribe = authService.onAuthChanged(async (user) => {
-      try {
-        if (!user) {
-          setAuthUser(null);
-          setUserDoc(null);
-          setIsVerifying(false);
-          return;
-        }
-        setAuthUser(user);
-        const doc = await userService.getUser(user.uid);
-        setUserDoc(doc);
-        setIsVerifying(false);
-      } catch (e) {
-        console.error('Auth listener error', e);
-        setIsVerifying(false);
+    let userDocUnsubscribe = null;
+
+    const unsubscribeAuth = authService.onAuthChanged(async (user) => {
+      // Clean up previous user doc listener
+      if (userDocUnsubscribe) {
+        userDocUnsubscribe();
+        userDocUnsubscribe = null;
       }
+
+      if (!user) {
+        setAuthUser(null);
+        setUserDoc(null);
+        setIsVerifying(false);
+        return;
+      }
+
+      setAuthUser(user);
+
+      // Set up real-time listener for user document
+      const userRef = doc(db, "users", user.uid);
+      userDocUnsubscribe = onSnapshot(userRef, (snap) => {
+        setUserDoc(snap.exists() ? snap.data() : null);
+        setIsVerifying(false);
+      }, (error) => {
+        console.error('User doc listener error', error);
+        setIsVerifying(false);
+      });
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeAuth();
+      if (userDocUnsubscribe) userDocUnsubscribe();
+    };
   }, []);
 
   if (isVerifying) {

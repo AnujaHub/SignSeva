@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { onSnapshot, doc } from 'firebase/firestore';
 import authService from '../../utils/authService';
 import userService from '../../utils/userService';
-import { auth } from '../../utils/firebase';
+import { auth, db } from '../../utils/firebase';
 import '../../Styles/Login.css';
 
 export default function SetUsername() {
@@ -13,19 +14,23 @@ export default function SetUsername() {
   const [checking, setChecking] = useState(true);
 
 useEffect(() => {
-  const unsub = authService.onAuthChanged(async (u) => {
-    if (!u) {
-      navigate('/login');
-      return;
-    }
+  const u = auth.currentUser;
+  if (!u) {
+    navigate('/login');
+    return;
+  }
 
-    const doc = await userService.getUser(u.uid);
-
-    if (doc && doc.username) {
+  const userRef = doc(db, "users", u.uid);
+  const unsub = onSnapshot(userRef, (snap) => {
+    const data = snap.exists() ? snap.data() : null;
+    if (data && data.username) {
       navigate('/home');
     } else {
-      setChecking(false); // ✅ only show UI after check
+      setChecking(false);
     }
+  }, (error) => {
+    console.error('SetUsername doc listener error', error);
+    setChecking(false);
   });
 
   return () => unsub();
@@ -53,7 +58,7 @@ if (checking) {
       const uid = auth.currentUser?.uid;
       if (!uid) throw new Error('Not authenticated');
       await authService.setUsername(uid, username);
-      navigate('/home');
+      // Navigation will happen automatically via route protection when userDoc updates
     } catch (err) {
       console.error('set username failed', err);
       setError(err.message || 'Failed to set username');
